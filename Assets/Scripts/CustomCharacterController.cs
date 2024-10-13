@@ -1,14 +1,17 @@
+using System;
 using UnityEngine;
 
 public class CustomCharacterController : MonoBehaviour
 {
     public InputManager inputManager;   // Reference to the InputManager
     public float jumpForce = 10f;       // Jump force
-    public float rotationSpeed = 5f;     // Speed of rotation
-    private Rigidbody rb;                // Reference to the Rigidbody component
-    private int jumpCount = 0;           // Counter for the number of jumps
-    public int maxJumps = 1;             // Maximum number of jumps allowed
-    public LayerMask groundLayer;        // LayerMask for identifying ground
+    public float rotationSpeed = 5f;    // Speed of rotation
+    private Rigidbody rb;               // Reference to the Rigidbody component
+    private int jumpCount = 0;          // Counter for the number of jumps
+    public int maxJumps = 1;            // Maximum number of jumps allowed
+    public LayerMask groundLayer;       // LayerMask for identifying ground
+
+    public float speed = 5f;            // Constant movement speed
 
     private void Awake()
     {
@@ -31,6 +34,19 @@ public class CustomCharacterController : MonoBehaviour
         inputManager.OnSwipe -= RotateCharacter;
     }
 
+    private void Update()
+    {
+        // Move the character forward based on its current facing direction (local forward direction)
+        MoveCharacter();
+    }
+
+    // Move the character at a constant speed in the forward direction
+    private void MoveCharacter()
+    {
+        Vector3 move = transform.forward * speed * Time.deltaTime; // Move in the direction the character is facing
+        rb.MovePosition(rb.position + move); // Use Rigidbody to move the character
+    }
+
     // Perform jump action
     private void PerformJump()
     {
@@ -42,7 +58,7 @@ public class CustomCharacterController : MonoBehaviour
         }
     }
 
-    // Rotate character by 90 degrees
+    // Rotate character based on swipe
     private void RotateCharacter(Vector2 swipeDirection)
     {
         // Calculate rotation direction based on swipe
@@ -56,9 +72,8 @@ public class CustomCharacterController : MonoBehaviour
             // Swipe left
             transform.Rotate(0, -90, 0);
         }
-        // If you want to implement up/down swipe rotation, you can add:
-        // if (swipeDirection.y > 0) { ... } // Implement if needed
     }
+
 
     // Check if the character is grounded
     private bool IsGrounded()

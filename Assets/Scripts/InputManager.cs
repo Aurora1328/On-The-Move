@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 
 public class InputManager : MonoBehaviour
 {
@@ -16,8 +15,8 @@ public class InputManager : MonoBehaviour
     private float startTime;
 
     // Minimal swipe distance and max swipe time (you can tweak these values)
-    [SerializeField] private float minimalSwipeDistance = 0.2f;
-    [SerializeField] private float maximumSwipeTime = 1f;
+    [SerializeField] private float minimalSwipeDistance = 100f; // Pixels
+    [SerializeField] private float maximumSwipeTime = 0.5f;     // Seconds
 
     private void Awake()
     {
@@ -36,41 +35,45 @@ public class InputManager : MonoBehaviour
 
     private void Start()
     {
-        // Tap input for jump
-        touchControls.Touch.PrimaryContact.started += ctx => JumpTap();
-
-        // Swipe detection
-        touchControls.Touch.PrimaryContact.started += ctx => SwipeStart(ctx);
-        touchControls.Touch.PrimaryContact.canceled += ctx => SwipeEnd(ctx);
+        // Register touch start and end events
+        touchControls.Touch.PrimaryContact.started += ctx => TouchStarted(ctx);
+        touchControls.Touch.PrimaryContact.canceled += ctx => TouchEnded(ctx);
     }
 
-    // Method to invoke the jump event when a tap is detected
-    private void JumpTap()
-    {
-        if (OnJump != null)
-        {
-            OnJump.Invoke();
-        }
-    }
-
-    // Swipe handling
-    private void SwipeStart(InputAction.CallbackContext context)
+    // Handle touch start - track position and time
+    private void TouchStarted(InputAction.CallbackContext context)
     {
         startPosition = touchControls.Touch.PrimaryPosition.ReadValue<Vector2>();
         startTime = (float)context.startTime;
+
+        Debug.Log($"Touch Started at Position: {startPosition}");
     }
 
-    private void SwipeEnd(InputAction.CallbackContext context)
+    // Handle touch end - detect if it's a tap or swipe
+    private void TouchEnded(InputAction.CallbackContext context)
     {
         Vector2 endPosition = touchControls.Touch.PrimaryPosition.ReadValue<Vector2>();
         float endTime = (float)context.time;
 
         Vector2 swipeDirection = endPosition - startPosition;
+        float swipeDistance = swipeDirection.magnitude;
+        float swipeDuration = endTime - startTime;
 
-        // Check if swipe is long enough and within time
-        if (swipeDirection.magnitude >= minimalSwipeDistance && (endTime - startTime) <= maximumSwipeTime)
+        Debug.Log($"Touch Ended. Start Position: {startPosition}, End Position: {endPosition}");
+        Debug.Log($"Swipe Distance: {swipeDistance}, Swipe Duration: {swipeDuration}");
+
+        // Check if it's a swipe
+        if (swipeDistance >= minimalSwipeDistance && swipeDuration <= maximumSwipeTime)
         {
-            OnSwipe?.Invoke(swipeDirection.normalized);  // Trigger swipe event with normalized direction
+            // This is a swipe
+            OnSwipe?.Invoke(swipeDirection.normalized);
+        }
+        // If it's not a swipe, treat it as a tap (jump)
+        else if (swipeDistance < minimalSwipeDistance)
+        {
+            Debug.Log("Jump action triggered.");
+            OnJump?.Invoke(); // This is a tap, trigger jump immediately
         }
     }
+
 }
