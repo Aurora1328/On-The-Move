@@ -14,9 +14,11 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     public float fallThreshold = -1f;
 
     public Restart restartManager;
-    public GameUIManager uiManager; 
+    public GameUIManager uiManager;
+    public Animator animator;
 
     private bool isGameOver = false;
+    private bool isJumping = false; // Новый флаг для отслеживания прыжка
 
     private void Awake()
     {
@@ -53,13 +55,17 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void PerformJump()
     {
-        if (isGameOver) return;
+        if (isGameOver || isJumping) return; // Не позволяем прыгать, если уже в прыжке
 
         if (IsGrounded() || jumpCount < maxJumps)
         {
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpCount++;
+
+            isJumping = true;  // Флаг для отслеживания прыжка
+            animator.SetTrigger("Jump");  // Включаем анимацию прыжка
+            animator.SetBool("IsGrounded", false);  // Устанавливаем флаг IsGrounded в false
         }
     }
 
@@ -87,6 +93,9 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             jumpCount = 0;
+            isJumping = false;  // Персонаж приземлился, можно прыгать снова
+            animator.ResetTrigger("Jump");  // Сбрасываем триггер прыжка
+            animator.SetBool("IsGrounded", true);  // Устанавливаем флаг IsGrounded в true
         }
     }
 
@@ -111,5 +120,4 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         rb.velocity = Vector3.zero;
         transform.position = new Vector3(3.3f, 0.2f, -5.59f);
     }
-
 }
