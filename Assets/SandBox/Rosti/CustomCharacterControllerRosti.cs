@@ -19,6 +19,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     public Animator animator;
 
     private bool isGameOver = false;
+<<<<<<< HEAD
     private bool isJumping = false;
 
     // Для броска еды
@@ -28,6 +29,10 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     public float throwDelay = 1f;      // Задержка между бросками
 
     private bool canThrow = true; // Флаг, указывающий, может ли персонаж бросить еду
+=======
+    private bool isJumping = false;  
+    private bool isGameStarted = false; 
+>>>>>>> origin/СreatedAnEndlessRoadInTheMainMenu
 
     private void Awake()
     {
@@ -54,8 +59,11 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void Update()
     {
-        MoveCharacter();
-        CheckIfFellOutOfZone();
+        if (isGameStarted && !isGameOver)
+        {
+            MoveCharacter();
+            CheckIfFellOutOfZone();
+        }
     }
 
     private void MoveCharacter()
@@ -66,7 +74,11 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void PerformJump()
     {
+<<<<<<< HEAD
         if (isGameOver || isJumping) return;
+=======
+        if (isGameOver || isJumping || !isGameStarted) return;  
+>>>>>>> origin/СreatedAnEndlessRoadInTheMainMenu
 
         if (IsGrounded() || jumpCount < maxJumps)
         {
@@ -74,15 +86,21 @@ public class CustomCharacterControllerRosti : MonoBehaviour
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpCount++;
 
+<<<<<<< HEAD
             isJumping = true;
             animator.SetTrigger("Jump");
             animator.SetBool("IsGrounded", false);
+=======
+            isJumping = true;  
+            animator.SetTrigger("Jump");  
+            animator.SetBool("IsGrounded", false); 
+>>>>>>> origin/СreatedAnEndlessRoadInTheMainMenu
         }
     }
 
     private void RotateCharacter(Vector2 swipeDirection)
     {
-        if (isGameOver) return;
+        if (isGameOver || !isGameStarted) return;  
 
         if (swipeDirection.x > 0)
         {
@@ -104,9 +122,15 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             jumpCount = 0;
+<<<<<<< HEAD
             isJumping = false;
             animator.ResetTrigger("Jump");
             animator.SetBool("IsGrounded", true);
+=======
+            isJumping = false;  
+            animator.ResetTrigger("Jump");  
+            animator.SetBool("IsGrounded", true);  
+>>>>>>> origin/СreatedAnEndlessRoadInTheMainMenu
         }
     }
 
@@ -132,6 +156,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         transform.position = new Vector3(3.3f, 0.2f, -5.59f);
     }
 
+<<<<<<< HEAD
     // Новый метод для броска еды
     public void ThrowFood()
     {
@@ -160,3 +185,10 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         canThrow = true; // Теперь бросок еды разрешен
     }
 }
+=======
+    public void StartGame()
+    {
+        isGameStarted = true;
+    }
+}
+>>>>>>> origin/СreatedAnEndlessRoadInTheMainMenu
