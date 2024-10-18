@@ -1,24 +1,33 @@
-using UnityEngine;
+п»їusing UnityEngine;
+using System.Collections;
 
 public class CustomCharacterControllerRosti : MonoBehaviour
 {
-    public InputManager inputManager;
+    public InputManager inputManager; // РЎСЃС‹Р»РєР° РЅР° InputManager
     public float jumpForce = 10f;
     public float rotationSpeed = 5f;
+    public float speed = 5f;
+    public float fallThreshold = -1f;
+
     private Rigidbody rb;
     private int jumpCount = 0;
     public int maxJumps = 1;
     public LayerMask groundLayer;
-
-    public float speed = 5f;
-    public float fallThreshold = -1f;
 
     public Restart restartManager;
     public GameUIManager uiManager;
     public Animator animator;
 
     private bool isGameOver = false;
-    private bool isJumping = false; // Новый флаг для отслеживания прыжка
+    private bool isJumping = false;
+
+    // Р”Р»СЏ Р±СЂРѕСЃРєР° РµРґС‹
+    public GameObject[] foodPrefabs;  // РњР°СЃСЃРёРІ РїСЂРµС„Р°Р±РѕРІ РµРґС‹
+    public Transform throwPoint;       // РўРѕС‡РєР°, РѕС‚РєСѓРґР° Р±СЂРѕСЃР°С‚СЊ РµРґСѓ
+    public float throwForce = 10f;     // РЎРёР»Р° Р±СЂРѕСЃРєР°
+    public float throwDelay = 1f;      // Р—Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ Р±СЂРѕСЃРєР°РјРё
+
+    private bool canThrow = true; // Р¤Р»Р°Рі, СѓРєР°Р·С‹РІР°СЋС‰РёР№, РјРѕР¶РµС‚ Р»Рё РїРµСЂСЃРѕРЅР°Р¶ Р±СЂРѕСЃРёС‚СЊ РµРґСѓ
 
     private void Awake()
     {
@@ -31,14 +40,16 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void OnEnable()
     {
-        inputManager.OnJump += PerformJump;
-        inputManager.OnSwipe += RotateCharacter;
+        inputManager.OnJump += PerformJump;      // РџРѕРґРїРёСЃРєР° РЅР° СЃРѕР±С‹С‚РёРµ РїСЂС‹Р¶РєР°
+        inputManager.OnSwipe += RotateCharacter;  // РџРѕРґРїРёСЃРєР° РЅР° СЃРѕР±С‹С‚РёРµ РїРѕРІРѕСЂРѕС‚Р°
+        inputManager.OnFeed += ThrowFood;         // РџРѕРґРїРёСЃРєР° РЅР° СЃРѕР±С‹С‚РёРµ Р±СЂРѕСЃРєР° РµРґС‹
     }
 
     private void OnDisable()
     {
         inputManager.OnJump -= PerformJump;
         inputManager.OnSwipe -= RotateCharacter;
+        inputManager.OnFeed -= ThrowFood;
     }
 
     private void Update()
@@ -55,7 +66,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void PerformJump()
     {
-        if (isGameOver || isJumping) return; // Не позволяем прыгать, если уже в прыжке
+        if (isGameOver || isJumping) return;
 
         if (IsGrounded() || jumpCount < maxJumps)
         {
@@ -63,9 +74,9 @@ public class CustomCharacterControllerRosti : MonoBehaviour
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpCount++;
 
-            isJumping = true;  // Флаг для отслеживания прыжка
-            animator.SetTrigger("Jump");  // Включаем анимацию прыжка
-            animator.SetBool("IsGrounded", false);  // Устанавливаем флаг IsGrounded в false
+            isJumping = true;
+            animator.SetTrigger("Jump");
+            animator.SetBool("IsGrounded", false);
         }
     }
 
@@ -93,9 +104,9 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             jumpCount = 0;
-            isJumping = false;  // Персонаж приземлился, можно прыгать снова
-            animator.ResetTrigger("Jump");  // Сбрасываем триггер прыжка
-            animator.SetBool("IsGrounded", true);  // Устанавливаем флаг IsGrounded в true
+            isJumping = false;
+            animator.ResetTrigger("Jump");
+            animator.SetBool("IsGrounded", true);
         }
     }
 
@@ -107,7 +118,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         }
     }
 
-    private void EndGame()
+    public void EndGame()
     {
         isGameOver = true;
         restartManager.ShowGameOverScreen();
@@ -119,5 +130,33 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         jumpCount = 0;
         rb.velocity = Vector3.zero;
         transform.position = new Vector3(3.3f, 0.2f, -5.59f);
+    }
+
+    // РќРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ Р±СЂРѕСЃРєР° РµРґС‹
+    public void ThrowFood()
+    {
+        if (isGameOver || !canThrow) return;
+
+        StartCoroutine(ThrowFoodCoroutine());
+    }
+
+    private IEnumerator ThrowFoodCoroutine()
+    {
+        canThrow = false; // Р‘СЂРѕСЃРѕРє РµРґС‹ СЃРµР№С‡Р°СЃ Р·Р°РїСЂРµС‰РµРЅ
+
+        // Р’С‹Р±РёСЂР°РµРј СЃР»СѓС‡Р°Р№РЅС‹Р№ РїСЂРµС„Р°Р± РµРґС‹
+        int randomIndex = Random.Range(0, foodPrefabs.Length);
+
+        // РџРѕРІРѕСЂР°С‡РёРІР°РµРј РµРґСѓ РЅР° 90 РіСЂР°РґСѓСЃРѕРІ РїРѕ РѕСЃРё Z
+        Quaternion rotation = Quaternion.Euler(90, 90, 0);
+
+        // РЎРѕР·РґР°РµРј РµРґСѓ СЃ СѓС‡РµС‚РѕРј РїРѕРІРѕСЂРѕС‚Р°
+        GameObject food = Instantiate(foodPrefabs[randomIndex], throwPoint.position + Vector3.up * 0.5f, rotation);
+
+        Rigidbody foodRb = food.GetComponent<Rigidbody>();
+        foodRb.AddForce(transform.forward * throwForce, ForceMode.Impulse);
+
+        yield return new WaitForSeconds(throwDelay); // Р–РґРµРј Р·Р°РґРµСЂР¶РєСѓ
+        canThrow = true; // РўРµРїРµСЂСЊ Р±СЂРѕСЃРѕРє РµРґС‹ СЂР°Р·СЂРµС€РµРЅ
     }
 }
