@@ -1,29 +1,71 @@
 ﻿using UnityEngine;
+using UnityEngine.UI; 
 
 public class InfiniteRoadMenu : MonoBehaviour
 {
-    public GameObject[] roadSegments;  // Массив сегментов дороги
-    public float speed = 5f;           // Скорость движения сегментов
-    public float segmentLength = 2.95f;  // Длина одного сегмента (можете настроить под свои сегменты)
+    public GameObject[] roadSegments;  
+    public float speed = 5f;           
+    public float segmentLength = 2.95f;  
 
-    public Transform player;            // Ссылка на игрока
+    public Transform player;            
+    public bool isGameStarted = false;  
 
-    private void FixedUpdate()
+    private Vector3[] initialPositions; 
+
+    public GameObject menuPanel;        
+    public GameObject startButton;      
+    public GameObject optionsButton;    
+    public GameObject levelsButton;    
+
+    private void Start()
     {
-        // Двигаем каждый сегмент в зависимости от скорости
+        initialPositions = new Vector3[roadSegments.Length];
+        for (int i = 0; i < roadSegments.Length; i++)
+        {
+            initialPositions[i] = roadSegments[i].transform.position;
+        }
+    }
+
+    private void Update()
+    {
+        if (!isGameStarted) 
+        {
+            MoveRoadSegments(); 
+        }
+    }
+
+    private void MoveRoadSegments()
+    {
         foreach (GameObject segment in roadSegments)
         {
-            // Перемещаем сегменты по оси X
-            segment.transform.Translate(Vector3.left * speed * Time.fixedDeltaTime);
+            segment.transform.Translate(Vector3.left * speed * Time.deltaTime);
 
-            // Если сегмент ушел слишком далеко от игрока
-            if (segment.transform.position.x < player.position.x - (segmentLength / 2))
+            if (segment.transform.position.x < initialPositions[0].x - segmentLength)
             {
-                // Перемещаем сегмент в конец массива
-                float newX = segment.transform.position.x + (segmentLength * roadSegments.Length);
-                segment.transform.position = new Vector3(newX, segment.transform.position.y, segment.transform.position.z);
+                float newX = initialPositions[0].x + (segmentLength * (roadSegments.Length - 1)); 
+
+                segment.transform.position = new Vector3(newX, initialPositions[0].y, initialPositions[0].z);
             }
         }
     }
-}
 
+    public void OnStartButtonPressed()
+    {
+        isGameStarted = true;  
+        ResetRoadSegments();    
+
+        startButton.SetActive(false); 
+        optionsButton.SetActive(false); 
+        levelsButton.SetActive(false); 
+
+        this.enabled = false;  
+    }
+
+    private void ResetRoadSegments()
+    {
+        for (int i = 0; i < roadSegments.Length; i++)
+        {
+            roadSegments[i].transform.position = initialPositions[i];
+        }
+    }
+}

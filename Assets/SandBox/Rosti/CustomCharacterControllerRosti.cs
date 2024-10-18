@@ -18,7 +18,8 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     public Animator animator;
 
     private bool isGameOver = false;
-    private bool isJumping = false; // Новый флаг для отслеживания прыжка
+    private bool isJumping = false;  
+    private bool isGameStarted = false; 
 
     private void Awake()
     {
@@ -43,8 +44,11 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void Update()
     {
-        MoveCharacter();
-        CheckIfFellOutOfZone();
+        if (isGameStarted && !isGameOver)
+        {
+            MoveCharacter();
+            CheckIfFellOutOfZone();
+        }
     }
 
     private void MoveCharacter()
@@ -55,7 +59,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void PerformJump()
     {
-        if (isGameOver || isJumping) return; // Не позволяем прыгать, если уже в прыжке
+        if (isGameOver || isJumping || !isGameStarted) return;  
 
         if (IsGrounded() || jumpCount < maxJumps)
         {
@@ -63,15 +67,15 @@ public class CustomCharacterControllerRosti : MonoBehaviour
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpCount++;
 
-            isJumping = true;  // Флаг для отслеживания прыжка
-            animator.SetTrigger("Jump");  // Включаем анимацию прыжка
-            animator.SetBool("IsGrounded", false);  // Устанавливаем флаг IsGrounded в false
+            isJumping = true;  
+            animator.SetTrigger("Jump");  
+            animator.SetBool("IsGrounded", false); 
         }
     }
 
     private void RotateCharacter(Vector2 swipeDirection)
     {
-        if (isGameOver) return;
+        if (isGameOver || !isGameStarted) return;  
 
         if (swipeDirection.x > 0)
         {
@@ -93,9 +97,9 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             jumpCount = 0;
-            isJumping = false;  // Персонаж приземлился, можно прыгать снова
-            animator.ResetTrigger("Jump");  // Сбрасываем триггер прыжка
-            animator.SetBool("IsGrounded", true);  // Устанавливаем флаг IsGrounded в true
+            isJumping = false;  
+            animator.ResetTrigger("Jump");  
+            animator.SetBool("IsGrounded", true);  
         }
     }
 
@@ -119,5 +123,10 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         jumpCount = 0;
         rb.velocity = Vector3.zero;
         transform.position = new Vector3(3.3f, 0.2f, -5.59f);
+    }
+
+    public void StartGame()
+    {
+        isGameStarted = true;
     }
 }

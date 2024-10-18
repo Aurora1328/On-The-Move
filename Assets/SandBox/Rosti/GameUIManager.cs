@@ -15,6 +15,6 @@ public class GameUIManager : MonoBehaviour
 
     private void UpdateCoinDisplay()
     {
-        coinCountText.text = "Coins: " + coinCount;
+        coinCountText.text = coinCount.ToString();
     }
 }
