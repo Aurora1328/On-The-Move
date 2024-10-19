@@ -6,8 +6,6 @@ public class Coin : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Triggered by: " + other.name);
-
         if (other.CompareTag("Player") && !isCollected)
         {
             isCollected = true;
@@ -16,7 +14,6 @@ public class Coin : MonoBehaviour
             if (uiManager != null)
             {
                 uiManager.AddCoin();
-                Debug.Log("Coin collected!"); 
             }
 
             Destroy(gameObject);
