@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class CustomCharacterControllerRosti : MonoBehaviour
 {
     public InputManager inputManager;
+    public Button buttonToHide;  
+    public Button startButton;   
     public float jumpForce = 10f;
     public float rotationSpeed = 5f;
     private Rigidbody rb;
@@ -23,12 +26,12 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     private bool isGameStarted = false;
 
     // Для броска еды
-    public GameObject[] foodPrefabs;  // Массив префабов еды
-    public Transform throwPoint;       // Точка, откуда бросать еду
-    public float throwForce = 10f;     // Сила броска
-    public float throwDelay = 1f;      // Задержка между бросками
+    public GameObject[] foodPrefabs;  
+    public Transform throwPoint;       
+    public float throwForce = 10f;    
+    public float throwDelay = 1f;      
 
-    private bool canThrow = true; // Флаг, указывающий, может ли персонаж бросить еду
+    private bool canThrow = true; 
 
     private void Awake()
     {
@@ -39,11 +42,17 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        buttonToHide.gameObject.SetActive(false);
+        startButton.onClick.AddListener(OnStartButtonClicked);
+    }
+
     private void OnEnable()
     {
         inputManager.OnJump += PerformJump;
         inputManager.OnSwipe += RotateCharacter;
-        inputManager.OnFeed += ThrowFood;  // Подписка на событие броска еды
+        inputManager.OnFeed += ThrowFood;  
     }
 
     private void OnDisable()
@@ -96,6 +105,8 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         {
             transform.Rotate(0, -90, 0);
         }
+
+        CenterCharacterOnRoad();
     }
 
     private bool IsGrounded()
@@ -139,9 +150,14 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     public void StartGame()
     {
         isGameStarted = true;
+        buttonToHide.gameObject.SetActive(true);
     }
 
-    // Метод для броска еды
+    private void OnStartButtonClicked()
+    {
+        StartGame();
+    }
+
     public void ThrowFood()
     {
         if (isGameOver || !canThrow) return;
@@ -151,21 +167,34 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private IEnumerator ThrowFoodCoroutine()
     {
-        canThrow = false; // Бросок еды сейчас запрещен
+        canThrow = false; 
 
-        // Выбираем случайный префаб еды
         int randomIndex = Random.Range(0, foodPrefabs.Length);
 
-        // Поворачиваем еду на 90 градусов по оси Z
         Quaternion rotation = Quaternion.Euler(90, 90, 0);
 
-        // Создаем еду с учетом поворота
         GameObject food = Instantiate(foodPrefabs[randomIndex], throwPoint.position + Vector3.up * 0.5f, rotation);
 
         Rigidbody foodRb = food.GetComponent<Rigidbody>();
         foodRb.AddForce(transform.forward * throwForce, ForceMode.Impulse);
 
-        yield return new WaitForSeconds(throwDelay); // Ждем задержку
-        canThrow = true; // Теперь бросок еды разрешен
+        yield return new WaitForSeconds(throwDelay); 
+        canThrow = true; 
+    }
+
+    private void CenterCharacterOnRoad()
+    {
+        Collider[] roadColliders = Physics.OverlapBox(transform.position, new Vector3(0.5f, 1f, 0.5f), Quaternion.identity);
+
+        foreach (Collider collider in roadColliders)
+        {
+            if (collider.CompareTag("Road")) 
+            {
+                Vector3 centerPosition = collider.bounds.center;
+                centerPosition.y = transform.position.y; 
+                transform.position = centerPosition; 
+                break; 
+            }
+        }
     }
 }

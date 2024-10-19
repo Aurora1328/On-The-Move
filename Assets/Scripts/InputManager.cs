@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI; // Необходим для работы с UI
+using UnityEngine.UI; 
 using System.Collections;
 
 public class InputManager : MonoBehaviour
@@ -13,8 +13,8 @@ public class InputManager : MonoBehaviour
     public delegate void OnSwipeAction(Vector2 direction);
     public event OnSwipeAction OnSwipe;
 
-    public delegate void OnFeedAction();   // Новый делегат для события "Feed"
-    public event OnFeedAction OnFeed;      // Новое событие для броска еды
+    public delegate void OnFeedAction();   
+    public event OnFeedAction OnFeed;     
 
     private Vector2 startPosition;
     private float startTime;
@@ -22,14 +22,13 @@ public class InputManager : MonoBehaviour
     [SerializeField] private float minimalSwipeDistance = 100f;
     [SerializeField] private float maximumSwipeTime = 0.5f;
 
-    [SerializeField] private Button feedButton; // Ссылка на кнопку "Feed"
-    private bool isFeeding = false; // Флаг, указывающий, что кнопка "Feed" нажата
+    [SerializeField] private Button feedButton;
+    private bool isFeeding = false; 
 
     private void Awake()
     {
         touchControls = new TouchControls();
 
-        // Подписываем кнопку на событие
         if (feedButton != null)
         {
             feedButton.onClick.AddListener(FeedButtonPressed);
@@ -77,26 +76,24 @@ public class InputManager : MonoBehaviour
         {
             OnSwipe?.Invoke(swipeDirection.normalized);
         }
-        else if (swipeDistance < minimalSwipeDistance && !isFeeding) // Игнорируем прыжок, если кнопка "Feed" нажата
+        else if (swipeDistance < minimalSwipeDistance && !isFeeding) 
         {
-            OnJump?.Invoke(); // Триггер прыжка только если не было свайпа
+            OnJump?.Invoke(); 
         }
     }
 
-    // Метод, вызываемый при нажатии кнопки "Feed"
     public void FeedButtonPressed()
     {
-        isFeeding = true; // Устанавливаем флаг, что кнопка "Feed" нажата
+        isFeeding = true; 
         OnFeed?.Invoke();
         Debug.Log("Feed button pressed, throwing food!");
 
-        // Сбрасываем флаг после броска еды
         StartCoroutine(ResetFeedingFlag());
     }
 
     private IEnumerator ResetFeedingFlag()
     {
-        yield return new WaitForSeconds(0.1f); // Установите нужное время для защиты от быстрого повторного нажатия
-        isFeeding = false; // Сбрасываем флаг
+        yield return new WaitForSeconds(0.1f); 
+        isFeeding = false;
     }
 }
