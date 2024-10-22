@@ -3,33 +3,43 @@ using UnityEngine;
 public class CheckpointSystem : MonoBehaviour
 {
     public Transform[] checkpoints; // Массив всех чекпоинтов
-    private int currentCheckpointIndex; // Индекс текущего чекпоинта
+    private int currentCheckpointIndex = 0; // Индекс текущего чекпоинта
     private Transform player; // Ссылка на игрока
+    private bool gameStarted = false; // Флаг, показывающий, началась ли игра
 
     private void Start()
     {
         // Находим игрока в сцене
         player = GameObject.FindGameObjectWithTag("Player").transform;
 
-        // Загружаем сохранённый чекпоинт при старте игры
-        LoadCheckpoint();
+        // Изначально телепортируем игрока на 0-й чекпоинт БЕЗ СОХРАНЕНИЯ прогресса
+        TeleportToCheckpoint(0, saveProgress: false);
     }
 
     // Метод для сохранения чекпоинта
     public void SaveCheckpoint(int checkpointIndex)
     {
-        Debug.Log("Saving checkpoint: " + checkpointIndex); // Лог для отладки
-        PlayerPrefs.SetInt("Checkpoint", checkpointIndex);
-        PlayerPrefs.Save(); // Сохраняем PlayerPrefs
+        // Проверяем, что мы не на 0-м чекпоинте
+        if (checkpointIndex > 0)
+        {
+            Debug.Log("Saving checkpoint: " + checkpointIndex); // Лог для отладки
+            PlayerPrefs.SetInt("Checkpoint", checkpointIndex);
+            PlayerPrefs.Save(); // Сохраняем PlayerPrefs
+        }
+        else
+        {
+            Debug.Log("Checkpoint 0, progress not saved.");
+        }
+
+        currentCheckpointIndex = checkpointIndex;
     }
 
     // Метод для загрузки последнего сохранённого чекпоинта
-    private void LoadCheckpoint()
+    public void LoadCheckpoint()
     {
-        // Проверяем, есть ли сохранённые данные
         if (PlayerPrefs.HasKey("Checkpoint"))
         {
-            currentCheckpointIndex = PlayerPrefs.GetInt("Checkpoint"); // Загружаем сохранённый чекпоинт
+            currentCheckpointIndex = PlayerPrefs.GetInt("Checkpoint");
             Debug.Log("Loaded checkpoint: " + currentCheckpointIndex); // Лог для отладки
         }
         else
@@ -38,59 +48,37 @@ public class CheckpointSystem : MonoBehaviour
             Debug.Log("No saved checkpoint found, starting from the first one.");
         }
 
-        // Перемещаем игрока к загруженному чекпоинту
-        TeleportToCheckpoint();
+        // Телепортируем игрока к загруженному чекпоинту
+        TeleportToCheckpoint(currentCheckpointIndex);
     }
 
-    // Метод для перемещения игрока к последнему чекпоинту
-    public void TeleportToCheckpoint()
+    // Метод для перемещения игрока к чекпоинту
+    public void TeleportToCheckpoint(int checkpointIndex, bool saveProgress = true)
     {
-        // Убедитесь, что индекс чекпоинта находится в пределах массива
-        if (currentCheckpointIndex >= 0 && currentCheckpointIndex < checkpoints.Length)
+        if (checkpointIndex >= 0 && checkpointIndex < checkpoints.Length)
         {
-            Transform checkpoint = checkpoints[currentCheckpointIndex];
-            player.position = checkpoint.position;
-            player.rotation = checkpoint.rotation;
-            Debug.Log("Teleporting player to checkpoint: " + currentCheckpointIndex); // Лог для отладки
+            Transform checkpointTransform = checkpoints[checkpointIndex];
+            player.position = checkpointTransform.position;
+            player.rotation = checkpointTransform.rotation;
+            Debug.Log("Teleporting player to checkpoint: " + checkpointIndex);
+
+            // Сохраняем прогресс, если это необходимо
+            if (saveProgress)
+            {
+                SaveCheckpoint(checkpointIndex);
+            }
         }
         else
         {
-            Debug.LogError("Checkpoint index is out of bounds: " + currentCheckpointIndex);
+            Debug.LogError("Checkpoint index is out of bounds: " + checkpointIndex);
         }
     }
 
-    // Вызывается при пересечении чекпоинта игроком
-    private void OnTriggerEnter(Collider other)
+    // Метод для кнопки "Старт", который начинает игру и телепортирует на сохранённый чекпоинт
+    public void OnStartButtonClick()
     {
-        Debug.Log("OnTriggerEnter called with: " + other.gameObject.name); // Лог для отладки
-        if (other.CompareTag("Player"))
-        {
-            Debug.Log("Player reached checkpoint: " + currentCheckpointIndex);
-            SaveCheckpoint(currentCheckpointIndex);
-        }
-    }
-
-
-
-    // Метод для перехода к следующему уровню (чекпоинту)
-    public void NextLevel()
-    {
-        if (currentCheckpointIndex < checkpoints.Length - 1)
-        {
-            currentCheckpointIndex++;
-            SaveCheckpoint(currentCheckpointIndex); // Сохраняем новый индекс
-            TeleportToCheckpoint();
-        }
-        else
-        {
-            Debug.Log("All levels completed!");
-        }
-    }
-
-    // Метод для кнопки "Play", которая телепортирует игрока к сохранённому чекпоинту
-    public void OnPlayButtonClick()
-    {
-        Debug.Log("Play button clicked");
+        Debug.Log("Start button clicked");
         LoadCheckpoint(); // Загружаем последний сохранённый чекпоинт и телепортируем игрока
+        gameStarted = true; // Игра началась
     }
 }
