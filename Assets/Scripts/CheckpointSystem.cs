@@ -2,10 +2,11 @@ using UnityEngine;
 
 public class CheckpointSystem : MonoBehaviour
 {
-    public Transform[] checkpoints; // Массив всех чекпоинтов
+    // Массив всех чекпоинтов, используемых в игре для сохранения прогресса
+    public Transform[] checkpoints;
+
     private int currentCheckpointIndex = 0; // Индекс текущего чекпоинта
     private Transform player; // Ссылка на игрока
-    private bool gameStarted = false; // Флаг, показывающий, началась ли игра
 
     private void Start()
     {
@@ -19,10 +20,9 @@ public class CheckpointSystem : MonoBehaviour
     // Метод для сохранения чекпоинта
     public void SaveCheckpoint(int checkpointIndex)
     {
-        // Проверяем, что мы не на 0-м чекпоинте
         if (checkpointIndex > 0)
         {
-            Debug.Log("Saving checkpoint: " + checkpointIndex); // Лог для отладки
+            Debug.Log("Saving checkpoint: " + checkpointIndex);
             PlayerPrefs.SetInt("Checkpoint", checkpointIndex);
             PlayerPrefs.Save(); // Сохраняем PlayerPrefs
         }
@@ -40,7 +40,7 @@ public class CheckpointSystem : MonoBehaviour
         if (PlayerPrefs.HasKey("Checkpoint"))
         {
             currentCheckpointIndex = PlayerPrefs.GetInt("Checkpoint");
-            Debug.Log("Loaded checkpoint: " + currentCheckpointIndex); // Лог для отладки
+            Debug.Log("Loaded checkpoint: " + currentCheckpointIndex);
         }
         else
         {
@@ -48,7 +48,6 @@ public class CheckpointSystem : MonoBehaviour
             Debug.Log("No saved checkpoint found, starting from the first one.");
         }
 
-        // Телепортируем игрока к загруженному чекпоинту
         TeleportToCheckpoint(currentCheckpointIndex);
     }
 
@@ -62,7 +61,6 @@ public class CheckpointSystem : MonoBehaviour
             player.rotation = checkpointTransform.rotation;
             Debug.Log("Teleporting player to checkpoint: " + checkpointIndex);
 
-            // Сохраняем прогресс, если это необходимо
             if (saveProgress)
             {
                 SaveCheckpoint(checkpointIndex);
@@ -78,7 +76,12 @@ public class CheckpointSystem : MonoBehaviour
     public void OnStartButtonClick()
     {
         Debug.Log("Start button clicked");
-        LoadCheckpoint(); // Загружаем последний сохранённый чекпоинт и телепортируем игрока
-        gameStarted = true; // Игра началась
+        LoadCheckpoint();
+    }
+
+    // Пример метода для сохранения текущего чекпоинта, если это нужно
+    public void SetCurrentCheckpoint(int checkpointIndex)
+    {
+        SaveCheckpoint(checkpointIndex);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI; 
+using UnityEngine.UI;
 using System.Collections;
 
 public class InputManager : MonoBehaviour
@@ -13,8 +13,8 @@ public class InputManager : MonoBehaviour
     public delegate void OnSwipeAction(Vector2 direction);
     public event OnSwipeAction OnSwipe;
 
-    public delegate void OnFeedAction();   
-    public event OnFeedAction OnFeed;     
+    public delegate void OnFeedAction();
+    public event OnFeedAction OnFeed;
 
     private Vector2 startPosition;
     private float startTime;
@@ -23,7 +23,7 @@ public class InputManager : MonoBehaviour
     [SerializeField] private float maximumSwipeTime = 0.5f;
 
     [SerializeField] private Button feedButton;
-    private bool isFeeding = false; 
+    private bool isFeeding = false;
 
     private void Awake()
     {
@@ -76,15 +76,15 @@ public class InputManager : MonoBehaviour
         {
             OnSwipe?.Invoke(swipeDirection.normalized);
         }
-        else if (swipeDistance < minimalSwipeDistance && !isFeeding) 
+        else if (swipeDistance < minimalSwipeDistance && !isFeeding)
         {
-            OnJump?.Invoke(); 
+            OnJump?.Invoke();
         }
     }
 
     public void FeedButtonPressed()
     {
-        isFeeding = true; 
+        isFeeding = true;
         OnFeed?.Invoke();
         Debug.Log("Feed button pressed, throwing food!");
 
@@ -93,7 +93,7 @@ public class InputManager : MonoBehaviour
 
     private IEnumerator ResetFeedingFlag()
     {
-        yield return new WaitForSeconds(0.1f); 
+        yield return new WaitForSeconds(0.1f);
         isFeeding = false;
     }
 }
