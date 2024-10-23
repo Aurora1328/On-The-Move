@@ -2,16 +2,31 @@ using UnityEngine;
 
 public class CheckpointTrigger : MonoBehaviour
 {
-    public int checkpointIndex; // Индекс этого чекпоинта
-    public CheckpointSystem checkpointSystem; // Ссылка на CheckpointSystem
+    public int checkpointIndex; // РРЅРґРµРєСЃ СЌС‚РѕРіРѕ С‡РµРєРїРѕРёРЅС‚Р°
+    private CheckpointSystem checkpointSystem; // РЎСЃС‹Р»РєР° РЅР° СЃРёСЃС‚РµРјСѓ С‡РµРєРїРѕРёРЅС‚РѕРІ
+
+    private void Start()
+    {
+        // РС‰РµРј СЃРёСЃС‚РµРјСѓ С‡РµРєРїРѕРёРЅС‚РѕРІ РЅР° СЃС†РµРЅРµ
+        checkpointSystem = FindObjectOfType<CheckpointSystem>();
+        if (checkpointSystem == null)
+        {
+            Debug.LogError("CheckpointSystem is not assigned in the scene!");
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player")) // Проверка на игрока
+        if (other.CompareTag("Player")) // Р•СЃР»Рё РёРіСЂРѕРє РІС…РѕРґРёС‚ РІ С‚СЂРёРіРіРµСЂ
         {
-            // Сообщаем системе чекпоинтов о пересечении
+            // РЎРѕС…СЂР°РЅСЏРµРј С‚РµРєСѓС‰РёР№ С‡РµРєРїРѕРёРЅС‚
             checkpointSystem.SaveCheckpoint(checkpointIndex);
-            Debug.Log("Player reached checkpoint: " + checkpointIndex); // Лог для отладки
+
+            // РћС‚РєСЂС‹РІР°РµРј С‡РµРєРїРѕРёРЅС‚, РµСЃР»Рё РѕРЅ РµС‰С‘ РЅРµ Р±С‹Р» РѕС‚РєСЂС‹С‚
+            if (!checkpointSystem.IsCheckpointUnlocked(checkpointIndex))
+            {
+                checkpointSystem.UnlockCheckpoint(checkpointIndex);
+            }
         }
     }
 }
