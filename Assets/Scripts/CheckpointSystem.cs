@@ -2,80 +2,83 @@ using UnityEngine;
 
 public class CheckpointSystem : MonoBehaviour
 {
-    public bool[] unlockedCheckpoints; // РњР°СЃСЃРёРІ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РѕС‚РєСЂС‹С‚С‹С… С‡РµРєРїРѕРёРЅС‚РѕРІ
-    private int lastCheckpointIndex = -1; // РРЅРґРµРєСЃ РїРѕСЃР»РµРґРЅРµРіРѕ СЃРѕС…СЂР°РЅС‘РЅРЅРѕРіРѕ С‡РµРєРїРѕРёРЅС‚Р°
+    public Transform[] checkpoints; // Массив всех чекпоинтов
+    private int currentCheckpointIndex = 0; // Индекс текущего чекпоинта
+    private Transform player; // Ссылка на игрока
+    private bool gameStarted = false; // Флаг, показывающий, началась ли игра
 
     private void Start()
     {
-        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјР°СЃСЃРёРІР° РѕС‚РєСЂС‹С‚С‹С… С‡РµРєРїРѕРёРЅС‚РѕРІ
-        if (unlockedCheckpoints == null || unlockedCheckpoints.Length == 0)
-        {
-            unlockedCheckpoints = new bool[9]; // 9 СѓСЂРѕРІРЅРµР№
-        }
+        // Находим игрока в сцене
+        player = GameObject.FindGameObjectWithTag("Player").transform;
 
-        // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РѕС‚РєСЂС‹С‚ РїРµСЂРІС‹Р№ С‡РµРєРїРѕРёРЅС‚
-        unlockedCheckpoints[0] = true;
+        // Изначально телепортируем игрока на 0-й чекпоинт БЕЗ СОХРАНЕНИЯ прогресса
+        TeleportToCheckpoint(0, saveProgress: false);
     }
 
-    // РњРµС‚РѕРґ РґР»СЏ РїСЂРѕРІРµСЂРєРё, РѕС‚РєСЂС‹С‚ Р»Рё С‡РµРєРїРѕРёРЅС‚
-    public bool IsCheckpointUnlocked(int checkpointIndex)
-    {
-        if (checkpointIndex >= 0 && checkpointIndex < unlockedCheckpoints.Length)
-        {
-            return unlockedCheckpoints[checkpointIndex];
-        }
-        else
-        {
-            Debug.LogWarning("Invalid checkpoint index: " + checkpointIndex);
-            return false;
-        }
-    }
-
-    // РњРµС‚РѕРґ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РѕРїСЂРµРґРµР»С‘РЅРЅРѕРіРѕ С‡РµРєРїРѕРёРЅС‚Р°
-    public void LoadCheckpoint(int checkpointIndex)
-    {
-        if (IsCheckpointUnlocked(checkpointIndex))
-        {
-            Debug.Log("Checkpoint " + checkpointIndex + " loaded.");
-            // Р›РѕРіРёРєР° РїРµСЂРµРјРµС‰РµРЅРёСЏ РёРіСЂРѕРєР° Рє С‡РµРєРїРѕРёРЅС‚Сѓ
-        }
-        else
-        {
-            Debug.LogError("Cannot load checkpoint " + checkpointIndex + ". It's not unlocked.");
-        }
-    }
-
-    // РњРµС‚РѕРґ РґР»СЏ РѕС‚РєСЂС‹С‚РёСЏ РЅРѕРІРѕРіРѕ С‡РµРєРїРѕРёРЅС‚Р°
-    public void UnlockCheckpoint(int checkpointIndex)
-    {
-        if (checkpointIndex >= 0 && checkpointIndex < unlockedCheckpoints.Length)
-        {
-            unlockedCheckpoints[checkpointIndex] = true;
-            Debug.Log("Checkpoint " + checkpointIndex + " unlocked.");
-        }
-        else
-        {
-            Debug.LogWarning("Invalid checkpoint index: " + checkpointIndex);
-        }
-    }
-
-    // РњРµС‚РѕРґ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ С‚РµРєСѓС‰РµРіРѕ С‡РµРєРїРѕРёРЅС‚Р°
+    // Метод для сохранения чекпоинта
     public void SaveCheckpoint(int checkpointIndex)
     {
-        if (checkpointIndex >= 0 && checkpointIndex < unlockedCheckpoints.Length)
+        // Проверяем, что мы не на 0-м чекпоинте
+        if (checkpointIndex > 0)
         {
-            lastCheckpointIndex = checkpointIndex;
-            Debug.Log("Checkpoint " + checkpointIndex + " saved.");
+            Debug.Log("Saving checkpoint: " + checkpointIndex); // Лог для отладки
+            PlayerPrefs.SetInt("Checkpoint", checkpointIndex);
+            PlayerPrefs.Save(); // Сохраняем PlayerPrefs
         }
         else
         {
-            Debug.LogWarning("Invalid checkpoint index: " + checkpointIndex);
+            Debug.Log("Checkpoint 0, progress not saved.");
+        }
+
+        currentCheckpointIndex = checkpointIndex;
+    }
+
+    // Метод для загрузки последнего сохранённого чекпоинта
+    public void LoadCheckpoint()
+    {
+        if (PlayerPrefs.HasKey("Checkpoint"))
+        {
+            currentCheckpointIndex = PlayerPrefs.GetInt("Checkpoint");
+            Debug.Log("Loaded checkpoint: " + currentCheckpointIndex); // Лог для отладки
+        }
+        else
+        {
+            currentCheckpointIndex = 0; // Если данных нет, начинаем с первого чекпоинта
+            Debug.Log("No saved checkpoint found, starting from the first one.");
+        }
+
+        // Телепортируем игрока к загруженному чекпоинту
+        TeleportToCheckpoint(currentCheckpointIndex);
+    }
+
+    // Метод для перемещения игрока к чекпоинту
+    public void TeleportToCheckpoint(int checkpointIndex, bool saveProgress = true)
+    {
+        if (checkpointIndex >= 0 && checkpointIndex < checkpoints.Length)
+        {
+            Transform checkpointTransform = checkpoints[checkpointIndex];
+            player.position = checkpointTransform.position;
+            player.rotation = checkpointTransform.rotation;
+            Debug.Log("Teleporting player to checkpoint: " + checkpointIndex);
+
+            // Сохраняем прогресс, если это необходимо
+            if (saveProgress)
+            {
+                SaveCheckpoint(checkpointIndex);
+            }
+        }
+        else
+        {
+            Debug.LogError("Checkpoint index is out of bounds: " + checkpointIndex);
         }
     }
 
-    // РњРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РїРѕСЃР»РµРґРЅРµРіРѕ СЃРѕС…СЂР°РЅС‘РЅРЅРѕРіРѕ С‡РµРєРїРѕРёРЅС‚Р°
-    public int GetLastCheckpoint()
+    // Метод для кнопки "Старт", который начинает игру и телепортирует на сохранённый чекпоинт
+    public void OnStartButtonClick()
     {
-        return lastCheckpointIndex;
+        Debug.Log("Start button clicked");
+        LoadCheckpoint(); // Загружаем последний сохранённый чекпоинт и телепортируем игрока
+        gameStarted = true; // Игра началась
     }
 }
