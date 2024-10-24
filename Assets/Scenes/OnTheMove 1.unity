@@ -35354,6 +35354,7 @@ MonoBehaviour:
   - {fileID: 796820455}
   - {fileID: 1197416187}
   - {fileID: 1592426254}
+  - {fileID: 1047384302}
   startButton: {fileID: 1916169400}
   musicOnButton: {fileID: 462178267}
   musicOffButton: {fileID: 814964692}
@@ -35361,6 +35362,7 @@ MonoBehaviour:
   soundOnButton: {fileID: 1197416187}
   soundOffButton: {fileID: 796820455}
   levelsCanvas: {fileID: 696554464}
+  label: {fileID: 1047384302}
   checkpointSystem: {fileID: 1488014494}
 --- !u!4 &1160607320
 Transform:

@@ -20,6 +20,7 @@ public class InfiniteRoadMenu : MonoBehaviour
     public GameObject soundOnButton;
     public GameObject soundOffButton;
     public GameObject levelsCanvas;
+    public GameObject label;
 
     public CheckpointSystem checkpointSystem; // Ссылка на CheckpointSystem для телепортации на чекпоинты
 
@@ -71,6 +72,7 @@ public class InfiniteRoadMenu : MonoBehaviour
         levelsButton.SetActive(false);
         soundOnButton.SetActive(false);
         soundOffButton.SetActive(false);
+        label.SetActive(false);
 
         this.enabled = false;
     }
