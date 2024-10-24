@@ -2,15 +2,14 @@
 
 public class HungryPeople : MonoBehaviour
 {
-    public float hungerLevel = 100f; 
-    public float hungerDecreaseRate = 1f; 
-    public float feedAmount = 50f; 
+    public float hungerLevel = 100f;
+    public float feedAmount = 50f;
 
-    [SerializeField] 
-    private float detectionRadius = 5f; 
+    [SerializeField]
+    private float detectionRadius = 5f;
 
-    public LayerMask foodLayer; 
-    private bool hasEaten = false; 
+    public LayerMask foodLayer;
+    private bool hasEaten = false;
 
     private CustomCharacterControllerRosti playerController;
 
@@ -21,7 +20,8 @@ public class HungryPeople : MonoBehaviour
 
     private void Update()
     {
-        hungerLevel -= hungerDecreaseRate * Time.deltaTime;
+        // Удаляем уменьшение голода
+        // hungerLevel -= hungerDecreaseRate * Time.deltaTime;
 
         if (hungerLevel <= 0)
         {
@@ -36,11 +36,10 @@ public class HungryPeople : MonoBehaviour
         Collider[] foodColliders = Physics.OverlapSphere(transform.position, detectionRadius, foodLayer);
         foreach (var foodCollider in foodColliders)
         {
-
             if (!hasEaten)
             {
                 EatFood(foodCollider.gameObject);
-                break; 
+                break;
             }
         }
     }
@@ -48,10 +47,10 @@ public class HungryPeople : MonoBehaviour
     private void EatFood(GameObject food)
     {
         hungerLevel += feedAmount;
-        hasEaten = true; 
+        hasEaten = true;
         Destroy(food);
         Debug.Log($"{gameObject.name} has eaten food and is now satisfied!");
-        Destroy(gameObject); 
+        Destroy(gameObject);
     }
 
     private void Die()
@@ -62,7 +61,7 @@ public class HungryPeople : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player")) 
+        if (other.CompareTag("Player"))
         {
             if (hungerLevel > 0 && !hasEaten)
             {
