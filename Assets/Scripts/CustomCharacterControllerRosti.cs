@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems; // Необходим для использования EventSystem
 using System.Collections;
 
 public class CustomCharacterControllerRosti : MonoBehaviour
@@ -79,7 +80,9 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void PerformJump()
     {
-        if (isGameOver || isJumping || !isGameStarted || animator.GetBool("isFeeding")) return;  // Изменено на проверку isFeeding
+        // Проверяем, не нажата ли UI кнопка, чтобы исключить прыжок при нажатии на кнопку броска еды
+        if (isGameOver || isJumping || !isGameStarted || EventSystem.current.IsPointerOverGameObject() || animator.GetBool("isFeeding"))
+            return;
 
         if (IsGrounded() || jumpCount < maxJumps)
         {
@@ -163,15 +166,20 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     {
         if (isGameOver || !canThrow) return;
 
+        Debug.Log("Feed button pressed, throwing food!");
+
         animator.SetBool("isFeeding", true); // Устанавливаем isFeeding в true
 
+        // Бросаем еду без блокировки прыжков
         StartCoroutine(ThrowFoodCoroutine());
+
+        // Сбрасываем возможность броска через 0.1 сек.
+        canThrow = false;
+        Invoke(nameof(ResetThrow), 0.1f);
     }
 
     private IEnumerator ThrowFoodCoroutine()
     {
-        canThrow = false;
-
         int randomIndex = Random.Range(0, foodPrefabs.Length);
 
         Quaternion rotation = Quaternion.Euler(90, 90, 0);
@@ -181,10 +189,14 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         Rigidbody foodRb = food.GetComponent<Rigidbody>();
         foodRb.AddForce(transform.forward * throwForce, ForceMode.Impulse);
 
-        yield return new WaitForSeconds(throwDelay);
-        canThrow = true;
+        yield return null;  // Возвращаем управление сразу
 
         animator.SetBool("isFeeding", false); // Сбрасываем isFeeding в false после броска еды
+    }
+
+    private void ResetThrow()
+    {
+        canThrow = true;
     }
 
     private void CenterCharacterOnRoad()
@@ -203,7 +215,6 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         }
     }
 
-    // Добавляем вызов для старта игры из меню уровней
     public void StartGameFromLevel()
     {
         ResetCharacter();  // Сбрасываем позицию и статус персонажа
