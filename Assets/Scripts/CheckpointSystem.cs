@@ -2,80 +2,86 @@ using UnityEngine;
 
 public class CheckpointSystem : MonoBehaviour
 {
-    public bool[] unlockedCheckpoints; // ÐœÐ°ÑÑÐ¸Ð² Ð´Ð»Ñ Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ñ‹Ñ… Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚Ð¾Ð²
-    private int lastCheckpointIndex = -1; // Ð˜Ð½Ð´ÐµÐºÑ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ³Ð¾ ÑÐ¾Ñ…Ñ€Ð°Ð½Ñ‘Ð½Ð½Ð¾Ð³Ð¾ Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚Ð°
+    // Ìàññèâ âñåõ ÷åêïîèíòîâ, èñïîëüçóåìûõ â èãðå äëÿ ñîõðàíåíèÿ ïðîãðåññà
+    public Transform[] checkpoints;
+
+    private int currentCheckpointIndex = 0; // Èíäåêñ òåêóùåãî ÷åêïîèíòà
+    private Transform player; // Ññûëêà íà èãðîêà
 
     private void Start()
     {
-        // Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¼Ð°ÑÑÐ¸Ð²Ð° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ñ‹Ñ… Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚Ð¾Ð²
-        if (unlockedCheckpoints == null || unlockedCheckpoints.Length == 0)
-        {
-            unlockedCheckpoints = new bool[9]; // 9 ÑƒÑ€Ð¾Ð²Ð½ÐµÐ¹
-        }
+        // Íàõîäèì èãðîêà â ñöåíå
+        player = GameObject.FindGameObjectWithTag("Player").transform;
 
-        // ÐŸÐ¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ Ð¿ÐµÑ€Ð²Ñ‹Ð¹ Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚
-        unlockedCheckpoints[0] = true;
+        // Èçíà÷àëüíî òåëåïîðòèðóåì èãðîêà íà 0-é ÷åêïîèíò ÁÅÇ ÑÎÕÐÀÍÅÍÈß ïðîãðåññà
+        TeleportToCheckpoint(0, saveProgress: false);
     }
 
-    // ÐœÐµÑ‚Ð¾Ð´ Ð´Ð»Ñ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸, Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ Ð»Ð¸ Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚
-    public bool IsCheckpointUnlocked(int checkpointIndex)
-    {
-        if (checkpointIndex >= 0 && checkpointIndex < unlockedCheckpoints.Length)
-        {
-            return unlockedCheckpoints[checkpointIndex];
-        }
-        else
-        {
-            Debug.LogWarning("Invalid checkpoint index: " + checkpointIndex);
-            return false;
-        }
-    }
-
-    // ÐœÐµÑ‚Ð¾Ð´ Ð´Ð»Ñ Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ¸ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»Ñ‘Ð½Ð½Ð¾Ð³Ð¾ Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚Ð°
-    public void LoadCheckpoint(int checkpointIndex)
-    {
-        if (IsCheckpointUnlocked(checkpointIndex))
-        {
-            Debug.Log("Checkpoint " + checkpointIndex + " loaded.");
-            // Ð›Ð¾Ð³Ð¸ÐºÐ° Ð¿ÐµÑ€ÐµÐ¼ÐµÑ‰ÐµÐ½Ð¸Ñ Ð¸Ð³Ñ€Ð¾ÐºÐ° Ðº Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚Ñƒ
-        }
-        else
-        {
-            Debug.LogError("Cannot load checkpoint " + checkpointIndex + ". It's not unlocked.");
-        }
-    }
-
-    // ÐœÐµÑ‚Ð¾Ð´ Ð´Ð»Ñ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ Ð½Ð¾Ð²Ð¾Ð³Ð¾ Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚Ð°
-    public void UnlockCheckpoint(int checkpointIndex)
-    {
-        if (checkpointIndex >= 0 && checkpointIndex < unlockedCheckpoints.Length)
-        {
-            unlockedCheckpoints[checkpointIndex] = true;
-            Debug.Log("Checkpoint " + checkpointIndex + " unlocked.");
-        }
-        else
-        {
-            Debug.LogWarning("Invalid checkpoint index: " + checkpointIndex);
-        }
-    }
-
-    // ÐœÐµÑ‚Ð¾Ð´ Ð´Ð»Ñ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚Ð°
+    // Ìåòîä äëÿ ñîõðàíåíèÿ ÷åêïîèíòà
     public void SaveCheckpoint(int checkpointIndex)
     {
-        if (checkpointIndex >= 0 && checkpointIndex < unlockedCheckpoints.Length)
+        if (checkpointIndex > 0)
         {
-            lastCheckpointIndex = checkpointIndex;
-            Debug.Log("Checkpoint " + checkpointIndex + " saved.");
+            Debug.Log("Saving checkpoint: " + checkpointIndex);
+            PlayerPrefs.SetInt("Checkpoint", checkpointIndex);
+            PlayerPrefs.Save(); // Ñîõðàíÿåì PlayerPrefs
         }
         else
         {
-            Debug.LogWarning("Invalid checkpoint index: " + checkpointIndex);
+            Debug.Log("Checkpoint 0, progress not saved.");
+        }
+
+        currentCheckpointIndex = checkpointIndex;
+    }
+
+    // Ìåòîä äëÿ çàãðóçêè ïîñëåäíåãî ñîõðàí¸ííîãî ÷åêïîèíòà
+    public void LoadCheckpoint()
+    {
+        if (PlayerPrefs.HasKey("Checkpoint"))
+        {
+            currentCheckpointIndex = PlayerPrefs.GetInt("Checkpoint");
+            Debug.Log("Loaded checkpoint: " + currentCheckpointIndex);
+        }
+        else
+        {
+            currentCheckpointIndex = 0; // Åñëè äàííûõ íåò, íà÷èíàåì ñ ïåðâîãî ÷åêïîèíòà
+            Debug.Log("No saved checkpoint found, starting from the first one.");
+        }
+
+        TeleportToCheckpoint(currentCheckpointIndex);
+    }
+
+    // Ìåòîä äëÿ ïåðåìåùåíèÿ èãðîêà ê ÷åêïîèíòó
+    public void TeleportToCheckpoint(int checkpointIndex, bool saveProgress = true)
+    {
+        if (checkpointIndex >= 0 && checkpointIndex < checkpoints.Length)
+        {
+            Transform checkpointTransform = checkpoints[checkpointIndex];
+            player.position = checkpointTransform.position;
+            player.rotation = checkpointTransform.rotation;
+            Debug.Log("Teleporting player to checkpoint: " + checkpointIndex);
+
+            if (saveProgress)
+            {
+                SaveCheckpoint(checkpointIndex);
+            }
+        }
+        else
+        {
+            Debug.LogError("Checkpoint index is out of bounds: " + checkpointIndex);
         }
     }
 
-    // ÐœÐµÑ‚Ð¾Ð´ Ð´Ð»Ñ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ³Ð¾ ÑÐ¾Ñ…Ñ€Ð°Ð½Ñ‘Ð½Ð½Ð¾Ð³Ð¾ Ñ‡ÐµÐºÐ¿Ð¾Ð¸Ð½Ñ‚Ð°
-    public int GetLastCheckpoint()
+    // Ìåòîä äëÿ êíîïêè "Ñòàðò", êîòîðûé íà÷èíàåò èãðó è òåëåïîðòèðóåò íà ñîõðàí¸ííûé ÷åêïîèíò
+    public void OnStartButtonClick()
     {
-        return lastCheckpointIndex;
+        Debug.Log("Start button clicked");
+        LoadCheckpoint();
+    }
+
+    // Ïðèìåð ìåòîäà äëÿ ñîõðàíåíèÿ òåêóùåãî ÷åêïîèíòà, åñëè ýòî íóæíî
+    public void SetCurrentCheckpoint(int checkpointIndex)
+    {
+        SaveCheckpoint(checkpointIndex);
     }
 }

@@ -5,8 +5,8 @@ using System.Collections;
 public class CustomCharacterControllerRosti : MonoBehaviour
 {
     public InputManager inputManager;
-    public Button buttonToHide;  
-    public Button startButton;   
+    public Button buttonToHide;
+    public Button startButton;
     public float jumpForce = 10f;
     public float rotationSpeed = 5f;
     private Rigidbody rb;
@@ -26,12 +26,12 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     private bool isGameStarted = false;
 
     // Для броска еды
-    public GameObject[] foodPrefabs;  
-    public Transform throwPoint;       
-    public float throwForce = 10f;    
-    public float throwDelay = 1f;      
+    public GameObject[] foodPrefabs;
+    public Transform throwPoint;
+    public float throwForce = 10f;
+    public float throwDelay = 1f;
 
-    private bool canThrow = true; 
+    private bool canThrow = true;
 
     private void Awake()
     {
@@ -52,7 +52,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     {
         inputManager.OnJump += PerformJump;
         inputManager.OnSwipe += RotateCharacter;
-        inputManager.OnFeed += ThrowFood;  
+        inputManager.OnFeed += ThrowFood;
     }
 
     private void OnDisable()
@@ -79,7 +79,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void PerformJump()
     {
-        if (isGameOver || isJumping || !isGameStarted) return;
+        if (isGameOver || isJumping || !isGameStarted || animator.GetBool("isFeeding")) return;  // Изменено на проверку isFeeding
 
         if (IsGrounded() || jumpCount < maxJumps)
         {
@@ -151,6 +151,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     {
         isGameStarted = true;
         buttonToHide.gameObject.SetActive(true);
+        rb.isKinematic = false; // Отключаем kinematic для включения управления
     }
 
     private void OnStartButtonClicked()
@@ -162,12 +163,14 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     {
         if (isGameOver || !canThrow) return;
 
+        animator.SetBool("isFeeding", true); // Устанавливаем isFeeding в true
+
         StartCoroutine(ThrowFoodCoroutine());
     }
 
     private IEnumerator ThrowFoodCoroutine()
     {
-        canThrow = false; 
+        canThrow = false;
 
         int randomIndex = Random.Range(0, foodPrefabs.Length);
 
@@ -178,8 +181,10 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         Rigidbody foodRb = food.GetComponent<Rigidbody>();
         foodRb.AddForce(transform.forward * throwForce, ForceMode.Impulse);
 
-        yield return new WaitForSeconds(throwDelay); 
-        canThrow = true; 
+        yield return new WaitForSeconds(throwDelay);
+        canThrow = true;
+
+        animator.SetBool("isFeeding", false); // Сбрасываем isFeeding в false после броска еды
     }
 
     private void CenterCharacterOnRoad()
@@ -188,13 +193,20 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
         foreach (Collider collider in roadColliders)
         {
-            if (collider.CompareTag("Road")) 
+            if (collider.CompareTag("Road"))
             {
                 Vector3 centerPosition = collider.bounds.center;
-                centerPosition.y = transform.position.y; 
-                transform.position = centerPosition; 
-                break; 
+                centerPosition.y = transform.position.y;
+                transform.position = centerPosition;
+                break;
             }
         }
+    }
+
+    // Добавляем вызов для старта игры из меню уровней
+    public void StartGameFromLevel()
+    {
+        ResetCharacter();  // Сбрасываем позицию и статус персонажа
+        StartGame();       // Запускаем игру
     }
 }
