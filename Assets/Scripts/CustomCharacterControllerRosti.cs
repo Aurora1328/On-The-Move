@@ -16,6 +16,8 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     public LayerMask groundLayer;
 
     public float speed = 5f;
+    public float speedIncrement = 0.1f; // Увеличение скорости за секунду
+    public float maxSpeed = 15f; // Максимальная скорость
     public float fallThreshold = -1f;
 
     public Restart restartManager;
@@ -67,9 +69,17 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     {
         if (isGameStarted && !isGameOver)
         {
+            // Увеличиваем скорость со временем
+            IncreaseSpeedOverTime();
             MoveCharacter();
             CheckIfFellOutOfZone();
         }
+    }
+
+    private void IncreaseSpeedOverTime()
+    {
+        // Увеличиваем скорость, но не превышаем максимальное значение
+        speed = Mathf.Min(speed + speedIncrement * Time.deltaTime, maxSpeed);
     }
 
     private void MoveCharacter()
@@ -146,6 +156,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     {
         isGameOver = false;
         jumpCount = 0;
+        speed = 5f; // Сброс скорости при перезапуске
         rb.velocity = Vector3.zero;
         transform.position = new Vector3(3.3f, 0.2f, -5.59f);
     }
