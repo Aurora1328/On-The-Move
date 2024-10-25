@@ -12,6 +12,7 @@ public class InfiniteRoadMenu : MonoBehaviour
 
     private Vector3[] initialPositions;
 
+    public GameObject[] restartPanels;
     public GameObject[] menuPanels; // Массив для хранения нескольких панелей главного меню
     public GameObject startButton;
     public GameObject musicOnButton;
@@ -49,14 +50,19 @@ public class InfiniteRoadMenu : MonoBehaviour
 
     private void MoveRoadSegments()
     {
-        foreach (GameObject segment in roadSegments)
+        for (int i = 0; i < roadSegments.Length; i++)
         {
-            segment.transform.Translate(Vector3.left * speed * Time.deltaTime);
+            roadSegments[i].transform.Translate(Vector3.left * speed * Time.deltaTime);
 
-            if (segment.transform.position.x < initialPositions[0].x - segmentLength)
+            // Проверяем, когда сегмент уходит за пределы экрана
+            if (roadSegments[i].transform.position.x < initialPositions[0].x - segmentLength)
             {
-                float newX = initialPositions[0].x + (segmentLength * (roadSegments.Length - 1));
-                segment.transform.position = new Vector3(newX, initialPositions[0].y, initialPositions[0].z);
+                // Находим последний сегмент
+                int lastIndex = (i - 1 + roadSegments.Length) % roadSegments.Length;
+
+                // Вычисляем новую позицию для текущего сегмента за последним
+                float newX = roadSegments[lastIndex].transform.position.x + segmentLength;
+                roadSegments[i].transform.position = new Vector3(newX, initialPositions[i].y, initialPositions[i].z);
             }
         }
     }
@@ -116,8 +122,24 @@ public class InfiniteRoadMenu : MonoBehaviour
         {
             panel.SetActive(false); // Отключаем все панели главного меню
         }
+        isGameStarted = false; // Устанавливаем isGameStarted в false
     }
 
+    public void OnLevelsButton()
+    {
+        levelsCanvas.SetActive(true); // Включаем Canvas для уровней
+        foreach (GameObject restartPanel in restartPanels)
+        {
+            restartPanel.SetActive(false);
+        }
+    }
+    public void ShowRestartPanel()
+    {
+        foreach (GameObject restartPanel in restartPanels)
+        {
+            restartPanel.SetActive(true); // Показываем панели
+        }
+    }
     public void OnBackButtonPressed()
     {
         levelsCanvas.SetActive(false); // Отключаем Canvas для уровней
@@ -144,8 +166,6 @@ public class InfiniteRoadMenu : MonoBehaviour
 
         // Телепортируем игрока к выбранному чекпоинту
         checkpointSystem.TeleportToCheckpoint(checkpointIndex);
-
-        // Любые другие действия, необходимые для начала игры
     }
 
     // Методы для кнопок уровней
