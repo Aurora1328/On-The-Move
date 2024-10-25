@@ -9586,9 +9586,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -10210,7 +10210,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 335475214}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1160607319}
+        m_TargetAssemblyTypeName: InfiniteRoadMenu, Assembly-CSharp
+        m_MethodName: ShowRestartPanel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &335475214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19436,7 +19448,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 646550965}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1160607319}
+        m_TargetAssemblyTypeName: InfiniteRoadMenu, Assembly-CSharp
+        m_MethodName: OnLevelsButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &646550965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35344,17 +35368,17 @@ MonoBehaviour:
   - {fileID: 1115887682}
   - {fileID: 927605813}
   speed: 5
-  segmentLength: 2.95
+  segmentLength: 2.88
   player: {fileID: 1188886397}
   isGameStarted: 0
+  restartPanels:
+  - {fileID: 1077258204}
+  - {fileID: 469750223}
+  - {fileID: 646550962}
+  - {fileID: 1861034041}
+  - {fileID: 622950332}
   menuPanels:
-  - {fileID: 1916169400}
-  - {fileID: 814964692}
-  - {fileID: 462178267}
-  - {fileID: 796820455}
-  - {fileID: 1197416187}
-  - {fileID: 1592426254}
-  - {fileID: 1047384302}
+  - {fileID: 510313094}
   startButton: {fileID: 1916169400}
   musicOnButton: {fileID: 462178267}
   musicOffButton: {fileID: 814964692}
@@ -36645,10 +36669,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   speed: 5
+  speedIncrement: 0.1
+  maxSpeed: 15
   fallThreshold: -1
   restartManager: {fileID: 1291682620}
   uiManager: {fileID: 9459530}
   animator: {fileID: 2104176329}
+  isGameOver: 0
   foodPrefabs:
   - {fileID: 7957488792495842254, guid: a4e0dc894e5f621488be93afa818f3f1, type: 3}
   - {fileID: 2690476242586111013, guid: f3c7309d9f95262469e7999d15e6457b, type: 3}
@@ -45103,7 +45130,6 @@ MonoBehaviour:
   - {fileID: 348427079}
   - {fileID: 748435924}
   - {fileID: 1183546571}
-  - {fileID: 2073136108}
 --- !u!4 &1488014495
 Transform:
   m_ObjectHideFlags: 0
@@ -62700,6 +62726,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1160607319}
+        m_TargetAssemblyTypeName: InfiniteRoadMenu, Assembly-CSharp
+        m_MethodName: ShowRestartPanel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1997832211
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65656,7 +65694,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2073136108
 Transform:
   m_ObjectHideFlags: 0

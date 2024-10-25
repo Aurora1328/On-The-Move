@@ -20,7 +20,7 @@ public class CheckpointSystem : MonoBehaviour
     // Метод для сохранения чекпоинта
     public void SaveCheckpoint(int checkpointIndex)
     {
-        if (checkpointIndex > 0)
+        if (checkpointIndex >= 0) // Изменено на >= 0
         {
             Debug.Log("Saving checkpoint: " + checkpointIndex);
             PlayerPrefs.SetInt("Checkpoint", checkpointIndex);
@@ -28,7 +28,7 @@ public class CheckpointSystem : MonoBehaviour
         }
         else
         {
-            Debug.Log("Checkpoint 0, progress not saved.");
+            Debug.Log("Checkpoint index is negative, progress not saved.");
         }
 
         currentCheckpointIndex = checkpointIndex;

@@ -24,7 +24,9 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     public GameUIManager uiManager;
     public Animator animator;
 
+    [SerializeField] // Делает переменную видимой в инспекторе
     private bool isGameOver = false;
+
     private bool isJumping = false;
     private bool isGameStarted = false;
 
@@ -230,5 +232,11 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     {
         ResetCharacter();  // Сбрасываем позицию и статус персонажа
         StartGame();       // Запускаем игру
+    }
+
+    // Свойство для отображения статуса игры
+    public bool IsGameOver
+    {
+        get { return isGameOver; }
     }
 }
