@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement; // Подключаем для работы с сценами
 
 public class InfiniteRoadMenu : MonoBehaviour
 {
@@ -133,6 +134,7 @@ public class InfiniteRoadMenu : MonoBehaviour
             restartPanel.SetActive(false);
         }
     }
+
     public void ShowRestartPanel()
     {
         foreach (GameObject restartPanel in restartPanels)
@@ -140,6 +142,7 @@ public class InfiniteRoadMenu : MonoBehaviour
             restartPanel.SetActive(true); // Показываем панели
         }
     }
+
     public void OnBackButtonPressed()
     {
         levelsCanvas.SetActive(false); // Отключаем Canvas для уровней
@@ -169,48 +172,26 @@ public class InfiniteRoadMenu : MonoBehaviour
     }
 
     // Методы для кнопок уровней
-    public void OnLevel1ButtonPressed()
+    public void OnLevel1ButtonPressed() { OnLevelSelected(0); } // Начало с первого чекпоинта
+    public void OnLevel2ButtonPressed() { OnLevelSelected(1); } // Начало со второго чекпоинта
+    public void OnLevel3ButtonPressed() { OnLevelSelected(2); } // Начало с третьего чекпоинта
+    public void OnLevel4ButtonPressed() { OnLevelSelected(3); } // Начало с четвертого чекпоинта
+    public void OnLevel5ButtonPressed() { OnLevelSelected(4); } // Начало с пятого чекпоинта
+    public void OnLevel6ButtonPressed() { OnLevelSelected(5); } // Начало с шестого чекпоинта
+    public void OnLevel7ButtonPressed() { OnLevelSelected(6); } // Начало с седьмого чекпоинта
+    public void OnLevel8ButtonPressed() { OnLevelSelected(7); } // Начало с восьмого чекпоинта
+    public void OnLevel9ButtonPressed() { OnLevelSelected(8); } // Начало с девятого чекпоинта
+
+    // Метод для перезагрузки текущей сцены
+    public void RestartGame()
     {
-        OnLevelSelected(0); // Начало с первого чекпоинта (первый уровень)
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.name);
     }
 
-    public void OnLevel2ButtonPressed()
+    // Метод, который можно вызвать для перезапуска игры
+    public void OnRestartButtonPressed()
     {
-        OnLevelSelected(1); // Начало со второго чекпоинта (второй уровень)
-    }
-
-    public void OnLevel3ButtonPressed()
-    {
-        OnLevelSelected(2); // Начало с третьего чекпоинта (третий уровень)
-    }
-
-    public void OnLevel4ButtonPressed()
-    {
-        OnLevelSelected(3); // Начало с четвертого чекпоинта (четвертый уровень)
-    }
-
-    public void OnLevel5ButtonPressed()
-    {
-        OnLevelSelected(4); // Начало с пятого чекпоинта (пятый уровень)
-    }
-
-    public void OnLevel6ButtonPressed()
-    {
-        OnLevelSelected(5); // Начало с шестого чекпоинта (шестой уровень)
-    }
-
-    public void OnLevel7ButtonPressed()
-    {
-        OnLevelSelected(6); // Начало с седьмого чекпоинта (седьмой уровень)
-    }
-
-    public void OnLevel8ButtonPressed()
-    {
-        OnLevelSelected(7); // Начало с восьмого чекпоинта (восьмой уровень)
-    }
-
-    public void OnLevel9ButtonPressed()
-    {
-        OnLevelSelected(8); // Начало с девятого чекпоинта (девятый уровень)
+        RestartGame();
     }
 }
