@@ -38,6 +38,8 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private bool canThrow = true;
 
+    public JumpSoundManager jumpSoundManager; // Ссылка на скрипт JumpSoundManager
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -105,6 +107,9 @@ public class CustomCharacterControllerRosti : MonoBehaviour
             isJumping = true;
             animator.SetTrigger("Jump");
             animator.SetBool("IsGrounded", false);
+
+            // Воспроизводим звук прыжка
+            jumpSoundManager.PlayJumpSound();
         }
     }
 

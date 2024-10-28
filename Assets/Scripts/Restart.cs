@@ -4,20 +4,40 @@ using UnityEngine.UI;
 public class Restart : MonoBehaviour
 {
     public GameObject gameOverScreen; // Экран окончания игры
-    public Button restartButton; // Кнопка перезапуска
+    public Button[] restartButtons; // Массив кнопок перезапуска
     public CustomCharacterControllerRosti characterController; // Ссылка на контроллер игрока
     public CheckpointSystem checkpointSystem; // Ссылка на систему чекпоинтов
+    public AudioSource gameOverSound; // Звук для экрана окончания игры
 
     private void Awake()
     {
         gameOverScreen.SetActive(false); // Скрываем экран окончания игры
-        restartButton.onClick.AddListener(RestartGame); // Подписка на событие нажатия кнопки
+
+        // Подписка на событие нажатия кнопок
+        foreach (Button button in restartButtons)
+        {
+            button.onClick.AddListener(RestartGame);
+        }
     }
 
     public void ShowGameOverScreen()
     {
         gameOverScreen.SetActive(true); // Показываем экран окончания игры
         Time.timeScale = 0f; // Останавливаем время
+
+        // Воспроизводим звук окончания игры
+        if (gameOverSound != null)
+        {
+            SoundManager soundManager = FindObjectOfType<SoundManager>();
+            if (soundManager != null)
+            {
+                soundManager.PlaySound(gameOverSound); // Воспроизводим звук
+            }
+            else
+            {
+                Debug.LogWarning("SoundManager не найден!");
+            }
+        }
     }
 
     private void RestartGame()
@@ -43,3 +63,4 @@ public class Restart : MonoBehaviour
         gameOverScreen.SetActive(false); // Скрываем экран окончания игры
     }
 }
+
