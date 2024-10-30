@@ -24,6 +24,12 @@ public class InfiniteRoadMenu : MonoBehaviour
     public GameObject levelsCanvas;
     public GameObject label;
 
+    public GameObject winScreenCanvas;
+    public Button exitToMenuButton;    
+    public Button levelSelectButton;
+
+    public AudioSource WinSound;
+    public CustomCharacterControllerRosti customCharacterControllerRosti;
     public CheckpointSystem checkpointSystem; // Ссылка на CheckpointSystem для телепортации на чекпоинты
 
     private bool isMusicOn = true;
@@ -193,5 +199,25 @@ public class InfiniteRoadMenu : MonoBehaviour
     public void OnRestartButtonPressed()
     {
         RestartGame();
+        Time.timeScale = 1f;
+    }
+
+    public void ShowWinScreen()
+    {
+        if (winScreenCanvas != null)
+        {
+            Time.timeScale = 0f; // Останавливаем время
+            winScreenCanvas.SetActive(true); // Включаем канвас победы
+
+            SoundManager soundManager = FindObjectOfType<SoundManager>();
+            if (soundManager != null)
+            {
+                soundManager.PlaySound(WinSound); // Воспроизводим звук
+            }
+            else
+            {
+                Debug.LogWarning("SoundManager не найден!");
+            }
+        }
     }
 }
