@@ -25,7 +25,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
     public Animator animator;
 
     [SerializeField] // Делает переменную видимой в инспекторе
-    private bool isGameOver = false;
+    public bool isGameOver = false;
 
     private bool isJumping = false;
     private bool isGameStarted = false;
@@ -38,6 +38,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private bool canThrow = true;
 
+    public InfiniteRoadMenu infiniteRoadMenu;
     public JumpSoundManager jumpSoundManager; // Ссылка на скрипт JumpSoundManager
 
     private void Awake()
@@ -173,6 +174,14 @@ public class CustomCharacterControllerRosti : MonoBehaviour
         isGameStarted = true;
         buttonToHide.gameObject.SetActive(true);
         rb.isKinematic = false; // Отключаем kinematic для включения управления
+
+        infiniteRoadMenu.startButton.SetActive(false);
+        infiniteRoadMenu.musicOnButton.SetActive(false);
+        infiniteRoadMenu.musicOffButton.SetActive(false);
+        infiniteRoadMenu.levelsButton.SetActive(false);
+        infiniteRoadMenu.soundOnButton.SetActive(false);
+        infiniteRoadMenu.soundOffButton.SetActive(false);
+        infiniteRoadMenu.label.SetActive(false);
     }
 
     private void OnStartButtonClicked()
