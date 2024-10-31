@@ -10,11 +10,6 @@ public class GameUIManager : MonoBehaviour
     {
         coinCount++;
         Debug.Log("Coin count increased to: " + coinCount);
-        UpdateCoinDisplay();
     }
 
-    private void UpdateCoinDisplay()
-    {
-        coinCountText.text = coinCount.ToString();
-    }
 }

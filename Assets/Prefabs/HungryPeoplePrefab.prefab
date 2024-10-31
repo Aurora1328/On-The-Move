@@ -121,7 +121,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hungerLevel: 100
-  hungerDecreaseRate: 1
   feedAmount: 50
   detectionRadius: 1
   foodLayer:

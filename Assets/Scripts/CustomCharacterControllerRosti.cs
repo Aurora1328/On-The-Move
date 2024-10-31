@@ -95,10 +95,17 @@ public class CustomCharacterControllerRosti : MonoBehaviour
 
     private void PerformJump()
     {
-        // Проверяем, не нажата ли UI кнопка, чтобы исключить прыжок при нажатии на кнопку броска еды
-        if (isGameOver || isJumping || !isGameStarted || EventSystem.current.IsPointerOverGameObject() || animator.GetBool("isFeeding"))
+        // Проверяем, не нажата ли UI кнопка броска еды, чтобы исключить прыжок при её нажатии
+        if (isGameOver || isJumping || !isGameStarted || animator.GetBool("isFeeding"))
             return;
 
+        // Проверяем, нажата ли какая-либо UI кнопка, чтобы избежать случайных прыжков от любых касаний
+        if (EventSystem.current != null && EventSystem.current.currentSelectedGameObject != null)
+        {
+            return; // Если любая кнопка UI нажата, прыжок не выполняется
+        }
+
+        // Выполняем прыжок, если персонаж на земле или имеет ещё прыжки
         if (IsGrounded() || jumpCount < maxJumps)
         {
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
@@ -113,6 +120,7 @@ public class CustomCharacterControllerRosti : MonoBehaviour
             jumpSoundManager.PlayJumpSound();
         }
     }
+
 
     private void RotateCharacter(Vector2 swipeDirection)
     {
